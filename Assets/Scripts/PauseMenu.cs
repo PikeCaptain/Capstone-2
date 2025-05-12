@@ -1,7 +1,6 @@
 using InfimaGames.LowPolyShooterPack;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
@@ -9,15 +8,12 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject pauseMenuUI;
     [SerializeField] private bool isPaused;
     public Character character;
+    public GameObject resume;
 
-    private void Update()
+    public void Pause()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            isPaused = !isPaused;
-        }
-
-        if (isPaused) 
+        isPaused = !isPaused;
+        if (isPaused)
         {
             ActivateMenu();
         }
@@ -27,18 +23,19 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    void ActivateMenu()
+    public void ActivateMenu()
     {
         Time.timeScale = 0;
         AudioListener.pause = true;
         pauseMenuUI.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
         character.cursorLocked = false;
+        EventSystem.current.SetSelectedGameObject(resume);
     }
 
-     public void DeactivateMenu()
+    public void DeactivateMenu()
     {
-        Time .timeScale = 1;
+        Time.timeScale = 1;
         AudioListener.pause = false;
         pauseMenuUI.SetActive(false);
         isPaused = false;

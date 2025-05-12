@@ -2,11 +2,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using JetBrains.Annotations;
+using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public class GameOver : MonoBehaviour
 {
     public GameObject gameOverUI;
     public TMP_Text survivedWavesText;
+    public GameObject restart;
     // public TMP_Text survivedWavesText; // Use this line if you're using TextMeshPro
 
     private int wavesSurvived = 0;
@@ -20,7 +23,7 @@ public class GameOver : MonoBehaviour
     {
         gameOverUI.SetActive(true);
         Time.timeScale = 0f;
-        
+        EventSystem.current.SetSelectedGameObject(restart);
 
         survivedWavesText.text = "You Survived " + wavesSurvived + " Waves!";
     }

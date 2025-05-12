@@ -79,6 +79,8 @@ namespace InfimaGames.LowPolyShooterPack
 		/// </summary>
 		private int layerActions;
 
+		public PauseMenu pauseMenu;
+
 		/// <summary>
 		/// Character Kinematics. Handles all the IK stuff.
 		/// </summary>
@@ -106,6 +108,8 @@ namespace InfimaGames.LowPolyShooterPack
 		/// True if the character is reloading.
 		/// </summary>
 		private bool reloading;
+
+		public bool isPaused;
 		
 		/// <summary>
 		/// True if the character is inspecting its weapon.
@@ -601,10 +605,34 @@ namespace InfimaGames.LowPolyShooterPack
 					break;
 			}
 		}
-		/// <summary>
-		/// Reload.
-		/// </summary>
-		public void OnTryPlayReload(InputAction.CallbackContext context)
+
+        public void FireInput(bool context)
+        {
+            //Read.
+            holdingButtonFire = context;
+            if (!CanPlayAnimationFire())
+                return;
+
+            //Check.
+            if (equippedWeapon.HasAmmunition())
+            {
+                //Check.
+                if (equippedWeapon.IsAutomatic())
+                    return;
+
+                //Has fire rate passed.
+                if (Time.time - lastShotTime > 60.0f / equippedWeapon.GetRateOfFire())
+                    Fire();
+            }
+            //Fire Empty.
+            else
+                FireEmpty();
+        }
+
+        /// <summary>
+        /// Reload.
+        /// </summary>
+        public void OnTryPlayReload(InputAction.CallbackContext context)
 		{
 			//Block while the cursor is unlocked.
 			if (!cursorLocked)
@@ -625,10 +653,16 @@ namespace InfimaGames.LowPolyShooterPack
 			}
 		}
 
-		/// <summary>
-		/// Inspect.
-		/// </summary>
-		public void OnTryInspect(InputAction.CallbackContext context)
+        public void ReloadInput(bool context)
+        {
+            //Read.
+            PlayReloadAnimation();
+        }
+
+        /// <summary>
+        /// Inspect.
+        /// </summary>
+        public void OnTryInspect(InputAction.CallbackContext context)
 		{
 			//Block while the cursor is unlocked.
 			if (!cursorLocked)
@@ -720,10 +754,17 @@ namespace InfimaGames.LowPolyShooterPack
 					break;
 			}
 		}
-		/// <summary>
-		/// Next Inventory Weapon.
-		/// </summary>
-		public void OnTryInventoryNext(InputAction.CallbackContext context)
+
+        public void SprintInput(bool context)
+        {
+            //Read.
+            holdingButtonRun = context;
+        }
+
+        /// <summary>
+        /// Next Inventory Weapon.
+        /// </summary>
+        public void OnTryInventoryNext(InputAction.CallbackContext context)
 		{
 			//Block while the cursor is unlocked.
 			if (!cursorLocked)
@@ -777,19 +818,46 @@ namespace InfimaGames.LowPolyShooterPack
 			//Read.
 			axisMovement = cursorLocked ? context.ReadValue<Vector2>() : default;
 		}
-		/// <summary>
-		/// Look.
-		/// </summary>
-		public void OnLook(InputAction.CallbackContext context)
+
+        public void MoveInput(Vector2 context)
+        {
+            //Read.
+            axisMovement = cursorLocked ? context : default;
+        }
+
+        /// <summary>
+        /// Look.
+        /// </summary>
+        public void OnLook(InputAction.CallbackContext context)
 		{
 			//Read.
 			axisLook = cursorLocked ? context.ReadValue<Vector2>() : default;
 		}
 
-		/// <summary>
-		/// Called in order to update the tutorial text value.
-		/// </summary>
-		public void OnUpdateTutorial(InputAction.CallbackContext context)
+        public void LookInput(Vector2 context)
+        {
+            //Read.
+            axisLook = cursorLocked ? context : default;
+        }
+
+        public void OnPause(InputAction.CallbackContext context)
+        {
+			//Read.
+			isPaused = context.performed;
+			pauseMenu.Pause();
+        }
+
+        public void PauseInput(bool context)
+        {
+            //Read.
+            isPaused = context;
+            pauseMenu.Pause();
+        }
+
+        /// <summary>
+        /// Called in order to update the tutorial text value.
+        /// </summary>
+        public void OnUpdateTutorial(InputAction.CallbackContext context)
 		{
 			//Switch.
 			tutorialTextVisible = context switch
